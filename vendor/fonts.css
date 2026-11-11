@@ -1,0 +1,23 @@
+/* Respaldo local de tipografía (por si la sala no tiene red).
+
+   El deck compone en Helvetica. En macOS resuelve a Helvetica Neue; en
+   Windows, donde Helvetica no está instalada, el navegador cae a Arial,
+   que comparte sus métricas. Arimo es el último eslabón: clon libre
+   métricamente compatible con Arial/Helvetica, para máquinas donde no
+   haya ninguna de las dos. */
+
+@font-face{font-family:'Arimo';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/arimo-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Arimo';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/arimo-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Arimo';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/arimo-latin-700-normal.woff2') format('woff2')}
+
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2')}
+
+@font-face{
+  font-family:'Space Grotesk';
+  font-style:normal;
+  font-weight:300 700;
+  font-display:swap;
+  src:url('fonts/space-grotesk-latin.woff2') format('woff2');
+}

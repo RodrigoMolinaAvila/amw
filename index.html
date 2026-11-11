@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Untangling the Academic Network · AMW 2026</title>
+<link rel="icon" href="data:,">
+
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="vendor/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="vendor/fontawesome/css/solid.min.css">
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/auto-render.min.js"></script>
+
+<link rel="stylesheet" href="css/deck.css?v=61">
+</head>
+<body>
+
+<div id="stage">
+
+  <div class="grid-bg"></div>
+  <div class="navzone left"></div>
+  <div class="navzone right"></div>
+  <img id="amw-corner" src="logos/amw2026.png" alt="AMW 2026">
+  <div id="mando-luz" title="Xbox controller connected"></div>
+
+  <div id="pager">
+    <nav id="pager-menu" aria-label="Slide index"></nav>
+    <div id="pager-n"><span class="cur"></span><span class="sep">/</span><span class="tot"></span></div>
+  </div>
+
+  <!-- ================================================================
+       00 · COVER
+       ================================================================ -->
+  <section class="slide s-cover" data-slide="cover" data-act="cover"
+           data-title="Cover" data-sub="Untangling the Academic Network">
+    <canvas class="cover-net"></canvas>
+    <div class="cover-veil"></div>
+    <div class="cover-body">
+      <h1 class="cover-title">Untangling the<br>Academic Network</h1>
+      <p class="cover-full">Analyzing Scientific Trajectories With Graphs and Natural Language Processing</p>
+      <div class="cover-authors">
+        <div class="ca-name">Rodrigo Molina</div>
+        <div class="ca-name">Roxana Chiappa</div>
+        <div class="ca-name">Sebastián Ferrada</div>
+      </div>
+      <div class="cover-amw-slot" id="amw-slot" aria-hidden="true"></div>
+      <p class="cover-date">Friday 13 November 2026 · Arequipa, Peru · Universidad de San Pablo</p>
+    </div>
+    <div class="cover-logos">
+      <img src="logos/logo_fcfm.svg" alt="FCFM · Universidad de Chile">
+      <img class="mono" src="logos/logo_idia.png" alt="IDIA · Iniciativa de Datos e Inteligencia Artificial">
+      <img src="logos/logo_imfd.png" alt="IMFD · Instituto Milenio Fundamentos de los Datos">
+    </div>
+  </section>
+
+
+  <!-- ================================================================
+       01 · THE QUESTION
+       ================================================================ -->
+  <section class="slide s-question" data-slide="question" data-act="question"
+           data-title="The question" data-sub="What the records cannot answer">
+    <p class="q-text">Chile funds advanced human capital.<br>
+      Its records cannot answer the follow-up questions about the results of
+      that funding: <em>who entered science, with whom, where, and what came of it.</em></p>
+
+    <svg class="q-arrow" viewBox="0 0 520 120" aria-hidden="true">
+      <path d="M8 60 H486 M438 24 L492 60 L438 96"/>
+    </svg>
+  </section>
+
+  <!-- ================================================================
+       02 · THE GRAPH · FIVE QUERY PATHS
+       ================================================================ -->
+  <section class="slide s-graph" data-slide="graph" data-act="graph" data-jump="1"
+           data-title="The graph" data-sub="Seven complex queries, one schema">
+    <canvas data-schema3d aria-label="Property graph schema with highlighted query paths"></canvas>
+
+    <div class="source-strip" id="source-strip" aria-hidden="true"></div>
+
+    <aside class="schema-menu" id="schema-menu"></aside>
+
+    <div class="schema-banner">
+      <div class="sb-main">
+        <span class="st-tax" id="schema-tax">01</span>
+        <h3 id="schema-headline"></h3>
+      </div>
+      <div class="sb-number"><div id="schema-result"></div></div>
+      <div class="sb-query"><div class="st-lang">CYPHER</div><div class="st-pattern" id="schema-pattern"></div></div>
+    </div>
+
+    <aside class="schema-table" id="schema-table" aria-hidden="true" aria-label="Example query result">
+      <div class="st-table-head">
+        <span class="st-table-kicker">Example result</span>
+        <span class="st-table-title" id="st-table-title"></span>
+        <span class="st-table-count" id="st-table-count"></span>
+      </div>
+      <div class="st-table-wrap">
+        <table class="st-table" id="st-table"></table>
+      </div>
+    </aside>
+
+    <span data-beat="1"></span><span data-beat="2"></span><span data-beat="3"></span>
+    <span data-beat="4"></span><span data-beat="5"></span><span data-beat="6"></span><span data-beat="7"></span>
+    <span data-beat="8"></span>
+  </section>
+
+  <!-- ================================================================
+       03 · BERTopic · pipeline from the thesis deck
+       ================================================================ -->
+  <section class="slide s-bertopic" data-slide="topics" data-act="topics" data-jump="1"
+           data-title="Topics" data-sub="From 26,071 publications to 237 topics">
+    <h2 class="big-question bt-title">From publications<br>to topics.</h2>
+    <p class="bt-deck">BERTopic: 26,071 abstracts → 237 topics</p>
+
+    <div class="bt-riel"></div>
+
+    <div class="bt-escena">
+      <div class="bt-carro">
+        <div class="bt-ficha">
+          <div class="bt-k"></div>
+          <div class="bt-t"></div>
+          <div class="bt-sub"></div>
+          <div class="bt-formula"></div>
+          <div class="bt-pie"></div>
+          <div class="bt-params"></div>
+        </div>
+
+        <div class="tp-explore">
+          <div class="tp-headline" id="tp-headline"></div>
+          <aside class="tp-menu" id="tp-menu"></aside>
+          <table class="tp-table" id="tp-table"></table>
+          <p class="tp-foot" id="tp-foot"></p>
+          <div class="tp-path" id="tp-path"></div>
+        </div>
+      </div>
+
+      <div class="bt-lienzo-caja">
+        <canvas id="bt-lienzo" aria-label="BERTopic pipeline: the corpus through eight representations"></canvas>
+      </div>
+    </div>
+
+    <div class="topic-schema" id="topic-schema" aria-hidden="true">
+      <canvas id="topic-schema-canvas" data-schema3d aria-label="Topic-only schema queries"></canvas>
+      <aside class="schema-menu" id="topic-schema-menu"></aside>
+      <div class="schema-banner">
+        <div class="sb-main">
+          <span class="st-tax" id="topic-schema-tax"></span>
+          <h3 id="topic-schema-headline"></h3>
+        </div>
+        <div class="sb-number"><div id="topic-schema-result"></div></div>
+        <div class="sb-query"><div class="st-lang">CYPHER</div><div class="st-pattern" id="topic-schema-pattern"></div></div>
+      </div>
+      <aside class="schema-table" id="topic-table" aria-hidden="true" aria-label="Topic example query result">
+        <div class="st-table-head">
+          <span class="st-table-kicker">Example result</span>
+          <span class="st-table-title" id="topic-table-title"></span>
+          <span class="st-table-count" id="topic-table-count"></span>
+        </div>
+        <div class="st-table-wrap">
+          <table class="st-table" id="topic-table-grid"></table>
+        </div>
+      </aside>
+    </div>
+
+    <span data-beat="1"></span><span data-beat="2"></span><span data-beat="3"></span>
+    <span data-beat="4"></span><span data-beat="5"></span><span data-beat="6"></span><span data-beat="7"></span>
+    <span data-beat="8"></span><span data-beat="9"></span>
+    <span data-beat="10"></span><span data-beat="11"></span><span data-beat="12"></span><span data-beat="13"></span>
+    <span data-beat="14"></span><span data-beat="15"></span><span data-beat="16"></span>
+  </section>
+
+  <!-- ================================================================
+       04 · COMMUNITIES
+       ================================================================ -->
+  <section class="slide s-community" data-slide="community" data-act="community"
+           data-title="Communities" data-sub="A fragmented topology" data-jump="1">
+    <canvas id="community-canvas"></canvas>
+
+    <div class="cm-morph" id="cm-morph" aria-hidden="true">
+      <img src="logos/fuentes/anid.png" alt="">
+      <span>Fellow</span>
+    </div>
+
+    <div class="cm-facts">
+      <b class="cm-huge">84.2%</b>
+      <span class="cm-sub">never publish with a peer</span>
+      <div class="cm-small">
+        <div><b>496</b><span>fellows</span></div>
+        <div><b>700</b><span>edges</span></div>
+        <div><b>21</b><span>communities</span></div>
+      </div>
+    </div>
+
+    <table class="cm-table" data-beat="2">
+      <thead>
+        <tr><th>Community</th><th>Fellows</th><th>Female</th><th>Q1</th><th>High GSE</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><i class="chip" style="background:#1b4dff"></i>Immune cell biology</td><td>59</td><td>37.3%</td><td>86.7%</td><td>27.1%</td></tr>
+        <tr><td><i class="chip" style="background:#0f9b8c"></i>Synthesis &amp; structure</td><td>58</td><td>34.5%</td><td>83.2%</td><td>27.6%</td></tr>
+        <tr><td><i class="chip" style="background:#e07a1f"></i>Salmon genomics</td><td>49</td><td>49.0%</td><td>85.0%</td><td>26.5%</td></tr>
+        <tr><td><i class="chip" style="background:#6b5dd3"></i>C. difficile infection</td><td>33</td><td>48.5%</td><td>87.0%</td><td>6.1%</td></tr>
+        <tr><td><i class="chip" style="background:#2a788e"></i>Clinical methods</td><td>31</td><td>54.8%</td><td>85.5%</td><td>29.0%</td></tr>
+        <tr><td><i class="chip" style="background:#7a8b99"></i>Neuroscience</td><td>31</td><td>48.4%</td><td>90.5%</td><td>22.6%</td></tr>
+      </tbody>
+    </table>
+    <p class="cm-source">Louvain communities · Neo4j GDS · the 496-node component</p>
+
+  </section>
+
+  <!-- ================================================================
+       05 · FUTURE
+       ================================================================ -->
+  <section class="slide s-future" data-slide="future" data-act="future"
+           data-title="Future work" data-sub="Opening the full co-authorship graph" data-jump="1">
+    <canvas id="future-canvas"></canvas>
+
+    <div class="fu-copy">
+      <h3 class="fu-title">The graph already<br>holds the rest.</h3>
+      <div class="fu-stats">
+        <div><b>113,221</b><span>co-authors</span></div>
+        <div><b>2,884,376</b><span>edges</span></div>
+        <div><b>15.8%</b><span>of the cohort</span></div>
+      </div>
+      <p class="fu-next" data-beat="2">Next: full co-authorship, regional and institutional cuts,
+        causal designs.</p>
+      <p class="fu-note" id="fu-note">Schematic render of the co-author field.</p>
+    </div>
+
+    <span data-beat="2"></span>
+  </section>
+
+  <!-- ================================================================
+       06 · CLOSE
+       ================================================================ -->
+  <section class="slide s-close" data-slide="close" data-act="close"
+           data-title="Close" data-sub="Evaluate the network">
+    <div class="close-body">
+      <h2 class="close-title">Evaluate programmes<br>by the networks they build.</h2>
+      <div class="close-links">
+        <div><span><i class="fa-solid fa-globe" aria-hidden="true"></i>Graph</span><b>interrogandolaacademia.cl</b></div>
+        <div><span><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Artifact</span><b>rodrigomolinaavila.github.io/gds-becarios</b></div>
+        <div><span><i class="fa-solid fa-envelope" aria-hidden="true"></i>Contact</span><b>rodmolina@ug.uchile.cl</b></div>
+      </div>
+    </div>
+    <div class="close-cite">
+      Molina, Chiappa &amp; Ferrada. <i>Untangling the Academic Network.</i> AMW 2026.
+    </div>
+  </section>
+
+
+  <aside class="schema-filters" id="schema-filters" aria-hidden="true" aria-label="Filter example table">
+    <div class="sf-group" data-group="gender">
+      <span>Gender</span>
+      <button data-value="All" class="on">All</button>
+      <button data-value="Female">Female</button>
+      <button data-value="Male">Male</button>
+    </div>
+    <div class="sf-group" data-group="class">
+      <span>GSE</span>
+      <button data-value="All" class="on">All</button>
+      <button data-value="Alto">Alto</button>
+      <button data-value="Medio alto">Medio alto</button>
+      <button data-value="Medio">Medio</button>
+      <button data-value="Bajo">Bajo</button>
+      <button data-value="Other">Other</button>
+    </div>
+    <div class="sf-group" data-group="territory">
+      <span>Territory</span>
+      <button data-value="All" class="on">All</button>
+      <button data-value="Metropolitan">Metropolitan</button>
+      <button data-value="Regions">Regions</button>
+      <button data-value="Other">Other</button>
+    </div>
+  </aside>
+  <div id="index" aria-label="Slide index"></div>
+
+</div>
+
+<script src="data/red.js"></script>
+<script src="data/topicos.js"></script>
+<script src="data/perfiles.js"></script>
+<script src="js/filters.js?v=61"></script>
+<script src="js/deck.js?v=61"></script>
+<script src="js/graph.js?v=61"></script>
+<script src="js/schema3d.js?v=61"></script>
+<script src="data/queries.js?v=61"></script>
+<script src="data/topic_queries.js?v=61"></script>
+<script src="data/topic_segments.js?v=61"></script>
+<script src="js/substrate.js?v=61"></script>
+<script src="js/graph-scenes.js?v=61"></script>
+<script src="js/bertopic.js?v=61"></script>
+<script src="js/topics.js?v=61"></script>
+<script src="js/mando.js?v=61"></script>
+</body>
+</html>
