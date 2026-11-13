@@ -6,6 +6,8 @@
 
 const PIPE = BT_PASOS;
 const PIPE_N = PIPE.length;
+const BT_INTRO_N = 2;
+const BT_PIPE_START = BT_INTRO_N + 1;
 const TABLE_N = 3;
 
 const TOPIC_QUERIES = [
@@ -155,7 +157,7 @@ function buildTopicSchemaMenu(){
     el.className = 'mi';
     el.innerHTML = '<span class="mb"></span><i class="fa-solid ' + q.icon + ' ic" aria-hidden="true"></i><span class="ml"></span>';
     el.querySelector('.ml').textContent = q.label;
-    el.addEventListener('click', () => Deck.setBeat(PIPE_N + i + 1));
+    el.addEventListener('click', () => Deck.setBeat(PIPE_N + BT_PIPE_START + i));
     host.appendChild(el);
   });
 }
@@ -256,6 +258,7 @@ function renderTopicSchemaQuery(i){
 
 function showTopicSchema(s){
   if(s.classList.contains('topic-mode')) return;
+  s.classList.remove('bt-intro-mode', 'bt-intro-two');
   s.classList.add('topic-mode');
   document.getElementById('topic-schema').setAttribute('aria-hidden', 'false');
   buildTopicSchemaMenu();
@@ -312,7 +315,7 @@ function buildBtRail(s){
     + (it.table ? '09' : it.i.k) + '</span><span class="bt-ht">'
     + it.label + '</span></div>').join('');
   rail.querySelectorAll('.bt-hito').forEach((h, i) => {
-    h.addEventListener('click', () => Deck.setBeat(i < PIPE_N ? i + 1 : PIPE_N + 1));
+    h.addEventListener('click', () => Deck.setBeat(i < PIPE_N ? i + BT_PIPE_START : PIPE_N + BT_PIPE_START));
   });
 }
 
@@ -325,7 +328,7 @@ function buildTopicMenu(){
     el.className = 'mi';
     el.innerHTML = '<span class="mb"></span><span class="ml"></span>';
     el.querySelector('.ml').textContent = q.label;
-    el.addEventListener('click', () => Deck.setBeat(PIPE_N + i + 1));
+    el.addEventListener('click', () => Deck.setBeat(PIPE_N + BT_PIPE_START + i));
     host.appendChild(el);
   });
 }
@@ -363,7 +366,15 @@ function paintRail(s, active){
   });
 }
 
+function renderTopicIntro(s, n){
+  if(s.classList.contains('topic-mode')) hideTopicSchema(s);
+  s.classList.add('bt-intro-mode');
+  s.classList.toggle('bt-intro-two', n >= 2);
+  BT.parar();
+}
+
 function renderPipeline(s, i){
+  s.classList.remove('bt-intro-mode', 'bt-intro-two');
   const paso = PIPE[i];
   if(!paso) return;
   s.classList.remove('modo-tabla');
@@ -436,19 +447,22 @@ window.SCENES['topics'] = {
     };
     window.VIEW3D = BT_VIEW;
     const n = Math.max(1, Deck.beat);
-    if(n <= PIPE_N) renderPipeline(s, n - 1);
+    if(n <= BT_INTRO_N) renderTopicIntro(s, n);
+    else if(n <= PIPE_N + BT_INTRO_N) renderPipeline(s, n - BT_PIPE_START);
     else {
       showTopicSchema(s);
-      renderTopicSchemaQuery(n - PIPE_N - 1);
+      renderTopicSchemaQuery(n - PIPE_N - BT_PIPE_START);
     }
   },
   beat(n, s){
-    if(n <= PIPE_N){
+    if(n <= BT_INTRO_N){
+      renderTopicIntro(s, n);
+    } else if(n <= PIPE_N + BT_INTRO_N){
       hideTopicSchema(s);
-      renderPipeline(s, n - 1);
+      renderPipeline(s, n - BT_PIPE_START);
     } else {
       showTopicSchema(s);
-      renderTopicSchemaQuery(n - PIPE_N - 1);
+      renderTopicSchemaQuery(n - PIPE_N - BT_PIPE_START);
     }
   },
   destroy(){

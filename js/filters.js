@@ -29,6 +29,7 @@
   }
 
   function closeAll(){
+    if(window.SCHEMA_UI && SCHEMA_UI.closeProperties) SCHEMA_UI.closeProperties();
     const a = document.getElementById('schema-table');
     const b = document.getElementById('topic-table');
     if(a){ a.classList.remove('open'); a.setAttribute('aria-hidden','true'); }
@@ -76,6 +77,37 @@
     else sort[which] = { col, dir:1 };
   }
 
-  window.TABLE_SORT_UI = { sort, sortData, toggleSort };
-  window.TABLE_FILTER_UI = { state, matches, apply, show, closeAll };
+  function cycleSort(){
+    const schema = document.getElementById('schema-table');
+    const topic = document.getElementById('topic-table');
+    const which = schema && schema.classList.contains('open') ? 's3'
+                : topic && topic.classList.contains('open') ? 'topic' : null;
+    if(!which) return false;
+    const table = document.getElementById(which === 's3' ? 'st-table' : 'topic-table-grid');
+    const cols = table ? table.querySelectorAll('thead th').length : 0;
+    if(!cols) return false;
+    const cur = sort[which];
+    sort[which] = { col: cur ? (cur.col + 1) % cols : 0, dir:1 };
+    if(which === 's3' && window.SCHEMA_UI) SCHEMA_UI.refresh();
+    if(which === 'topic' && window.TOPIC_UI) TOPIC_UI.refresh();
+    return true;
+  }
+
+  let filterFocus = -1;
+  function navigate(dir){
+    const schema = document.getElementById('schema-table');
+    const topic = document.getElementById('topic-table');
+    const open = (schema && schema.classList.contains('open')) || (topic && topic.classList.contains('open'));
+    if(!open) return false;
+    const buttons = [...document.querySelectorAll('#schema-filters .sf-group button')];
+    if(!buttons.length) return false;
+    filterFocus = (filterFocus + dir + buttons.length) % buttons.length;
+    buttons.forEach(b => b.classList.toggle('focus', b === buttons[filterFocus]));
+    buttons[filterFocus].click();
+    show(true);
+    return true;
+  }
+
+  window.TABLE_SORT_UI = { sort, sortData, toggleSort, cycle: cycleSort };
+  window.TABLE_FILTER_UI = { state, matches, apply, show, closeAll, navigate };
 })();

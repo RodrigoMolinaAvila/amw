@@ -24,15 +24,18 @@ const Deck = {
     const el = document.getElementById('amw-corner');
     const s = this.slides[this.i];
     if(!el || !s || !s.classList.contains('active')) return;
-    if(s.dataset.slide !== 'cover'){ el.classList.remove('cover'); return; }
-    const slot = document.getElementById('amw-slot');
+    const isFinal = s.dataset.slide === 'close' && this.beat === this.maxBeat;
+    if(!isFinal) el.classList.remove('final');
+    if(s.dataset.slide !== 'cover' && !isFinal){ el.classList.remove('cover'); return; }
+    const slot = document.getElementById(isFinal ? 'amw-final-slot' : 'amw-slot');
     if(!slot) return;
     const z = window.innerWidth / DESIGN_W;
     const sr = slot.getBoundingClientRect();
     const st = document.getElementById('stage').getBoundingClientRect();
     el.style.setProperty('--amw-x', ((sr.left + sr.width / 2 - st.left) / z).toFixed(2) + 'px');
     el.style.setProperty('--amw-y', ((sr.top - st.top) / z).toFixed(2) + 'px');
-    el.classList.add('cover');
+    el.classList.toggle('cover', s.dataset.slide === 'cover');
+    el.classList.toggle('final', isFinal);
   },
 
   init(){
@@ -58,7 +61,7 @@ const Deck = {
 
   buildIndex(){
     const ix = document.getElementById('index');
-    ix.innerHTML = '<h4>Index · 7 slides</h4><div class="ix-grid"></div>';
+    ix.innerHTML = '<h4>Index · ' + this.slides.length + ' slides</h4><div class="ix-grid"></div>';
     const grid = ix.querySelector('.ix-grid');
     this.slides.forEach((s, idx) => {
       const it = document.createElement('div');
@@ -133,6 +136,7 @@ const Deck = {
   setBeat(n){
     this.beat = Math.max(1, Math.min(n, this.maxBeat));
     this.applyBeats();
+    this.placeAMW();
   },
 
   /* ---------- navigation ---------- */
@@ -204,6 +208,7 @@ const Deck = {
       else if(e.key === 'ArrowDown'){ e.preventDefault(); this.query(+1); }
       else if(e.key === 'ArrowUp'){ e.preventDefault(); this.query(-1); }
       else if(e.key === 'm' || e.key === 'M'){
+        if(window.METHOD_UI && METHOD_UI.toggleCentrality && METHOD_UI.toggleCentrality()){ e.preventDefault(); return; }
         if(window.SCHEMA_UI && SCHEMA_UI.activo()) SCHEMA_UI.tabla();
         else if(window.TOPIC_UI && TOPIC_UI.activo()) TOPIC_UI.tabla();
         else this.indice();

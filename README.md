@@ -1,15 +1,3 @@
-# AMW 2026 presentation
-
-Live: **https://rodrigomolinaavila.github.io/amw/**
-
-Static deck for *Untangling the Academic Network*. Open `index.html` directly or serve the folder over HTTP:
-
-```bash
-python -m http.server 8765 --bind 127.0.0.1
-```
-
-Then open `http://localhost:8765/`.
-
 # Untangling the Academic Network · AMW 2026
 
 Prototype deck for the 17-minute AMW talk. English only. White, sober,

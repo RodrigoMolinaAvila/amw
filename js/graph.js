@@ -22,7 +22,12 @@ const FIELD_ORDER = [
   ['CIENCIAS SOCIALES', 'Social sciences'],
   ['HUMANIDADES', 'Humanities']
 ];
-const COM_COLORS = ['#1b4dff', '#0f9b8c', '#e07a1f', '#6b5dd3', '#2a788e', '#7a8b99'];
+const COM_COLORS = [
+  '#1b4dff', '#0f9b8c', '#e07a1f', '#6b5dd3', '#2a788e', '#7a8b99',
+  '#d1495b', '#e6a23c', '#5b8c5a', '#9d7bb5', '#3b9ab2', '#c75b12',
+  '#4c78a8', '#f58518', '#54a24b', '#b279a2', '#e45756', '#72b7b2',
+  '#eeca3b', '#9d755d', '#b0b0b0', '#7f3c8d', '#11a579', '#3969ac', '#f2b701', '#e73f74', '#80ba5a', '#e68310'
+];
 const INK = '#0a1020';
 const GREY = '#a7b3c2';
 
@@ -40,6 +45,7 @@ class GraphScene {
       alpha:1, labels:true
     }, opts);
     this.mode = this.opts.mode;
+    this.communityKey = this.opts.communityKey || 'louvain';
     this.query = this.opts.query || 0;
     this.layout = 'base';
     this.yaw = -0.56; this.pitch = 0.42; this.dist = 3.15;
@@ -54,7 +60,12 @@ class GraphScene {
     this._order = null; this._drag = null;
 
     this.build();
+    this.nodes.forEach(p => { p.lift = 0; p.liftTarget = 0; p.centrality = null; });
+    this.centralityMode = 'betweenness';
+    this.centralityActive = false;
+    this.scaleA = 0; this.scaleTarget = 0;
     this.motes = []; this._moteLastT = 0; this._moteSeed = 20261113;
+    this.globalField = false; this.globalPts = []; this.futureFocus = null; this.buildGlobalField();
     this.buildLayouts();
     this.bind();
     this.resize();
@@ -100,8 +111,9 @@ class GraphScene {
 
     this.communities = new Map();
     RED.forEach((x, i) => {
-      if(!this.communities.has(x.louvain)) this.communities.set(x.louvain, []);
-      this.communities.get(x.louvain).push(i);
+      const cid = x[this.communityKey];
+      if(!this.communities.has(cid)) this.communities.set(cid, []);
+      this.communities.get(cid).push(i);
     });
     this.coms = [...this.communities.entries()]
       .map(([id, ids]) => ({ id, ids, n:ids.length }))
@@ -129,6 +141,40 @@ class GraphScene {
 
     this.fieldIndex = new Map(FIELD_ORDER.map((f, i) => [f[0], i]));
     this.buildSatellites();
+  }
+
+  buildGlobalField(){
+    let s = 424242 >>> 0;
+    const rnd = () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296;
+    for(let i = 0; i < 3600; i++){
+      const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2;
+      const r = 2.15 + Math.cbrt(rnd()) * 1.75;
+      const q = Math.sqrt(1 - u * u);
+      this.globalPts.push({
+        x:Math.cos(th) * q * r,
+        y:u * r * .72,
+        z:Math.sin(th) * q * r,
+        r:.55 + rnd() * 1.15,
+        a:.16 + rnd() * .34
+      });
+    }
+  }
+
+  setGlobalField(on){ this.globalField = !!on; }
+
+  drawGlobalField(ctx){
+    ctx.save();
+    ctx.fillStyle = 'rgba(10,16,32,.42)';
+    for(let i = 0; i < this.globalPts.length; i++){
+      const p = this.globalPts[i];
+      const q = this.project(p);
+      if(q.f <= .08 || q.f > 1.8) continue;
+      ctx.globalAlpha = p.a * Math.min(1, q.f * .9);
+      ctx.beginPath();
+      ctx.arc(q.sx, q.sy, Math.min(1.8, p.r * q.f), 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   buildSatellites(){
@@ -291,11 +337,11 @@ class GraphScene {
       this.nodes.forEach((p, i) => {
         const t = this.comTargets[i];
         p.tx = t.x; p.ty = t.y; p.tz = t.z;
-        const k = this.comRank.get(p.n.louvain) || 99;
+        const cid = p.n[this.communityKey];
+        const k = this.comRank.has(cid) ? this.comRank.get(cid) : 99;
         const rgb = hexRGB(COM_COLORS[k] || '#c2cbd6');
         p.tr = rgb[0]; p.tg = rgb[1]; p.tb = rgb[2];
-        p.ta = k < 6 ? .96 : .28;
-        p.hl = k < 6; p.ring = false;
+        p.ta = .90; p.hl = false; p.ring = false;
       });
     }
 
@@ -326,13 +372,209 @@ class GraphScene {
   highlightCommunities(ids){
     const set = new Set(ids);
     this.nodes.forEach(p => {
-      const k = this.comRank.get(p.n.louvain) || 99;
+      const cid = p.n[this.communityKey];
+        const k = this.comRank.has(cid) ? this.comRank.get(cid) : 99;
       const on = set.size === 0 || set.has(p.n.louvain);
       p.ta = on ? .98 : .07;
       p.hl = on && set.size > 0;
       const rgb = hexRGB(on ? (COM_COLORS[k] || GREY) : '#aeb9c6');
       p.tr = rgb[0]; p.tg = rgb[1]; p.tb = rgb[2];
     });
+  }
+
+  selectCommunity(rank){
+    const ids = rank != null && this.coms[rank] ? this.coms[rank].ids : null;
+    const order = new Map();
+    if(ids) ids.forEach((node, j) => order.set(node, j));
+    const n = ids ? ids.length : 0;
+    this.nodes.forEach((p, i) => {
+      const cid = p.n[this.communityKey];
+        const k = this.comRank.has(cid) ? this.comRank.get(cid) : 99;
+      const on = rank == null || k === rank;
+      p.ta = rank == null ? .94 : (on ? .99 : .16);
+      p.hl = rank != null && on;
+      p.ring = rank != null && on;
+      const rgb = hexRGB(COM_COLORS[k] || GREY);
+      p.tr = rgb[0]; p.tg = rgb[1]; p.tb = rgb[2];
+      if(ids && on){
+        const j = order.get(i) || 0;
+        const a = j * 2.399963;
+        const r = .08 + .42 * Math.sqrt((j + 1) / n);
+        p.tx = Math.cos(a) * r;
+        p.ty = 0;
+        p.tz = Math.sin(a) * r;
+      } else {
+        const t = this.comTargets[i];
+        p.tx = t.x; p.ty = t.y; p.tz = t.z;
+      }
+    });
+  }
+
+  showCentrality(on, metric){
+    if(metric) this.centralityMode = metric;
+    this.centralityActive = !!on;
+    this.scaleTarget = on ? 1 : 0;
+    const key = this.centralityMode;
+    const vals = this.nodes.map(p => Number(p.n[key]) || 0).sort((a,b) => a-b);
+    const q = vals.length ? vals[Math.min(vals.length - 1, Math.floor(vals.length * .9))] : Infinity;
+    this.nodes.forEach(p => {
+      const v = Number(p.n[key]) || 0;
+      const hit = on && v >= q && v > 0;
+      p.centrality = hit ? key : null;
+      p.liftTarget = hit ? (key === 'betweenness' ? .34 : .22) : 0;
+    });
+    return this.centralityMode;
+  }
+
+  toggleCentrality(){
+    return this.showCentrality(true, this.centralityMode === 'betweenness' ? 'closeness' : 'betweenness');
+  }
+
+  setFutureFocus(mode){ this.futureFocus = mode || null; }
+
+  drawFutureFocus(ctx){
+    const mode = this.futureFocus;
+    if(!mode) return;
+    const accent = '#1b4dff';
+    const chip = (text, x, y, align) => {
+      const mono = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'monospace';
+      ctx.font = '11px ' + mono;
+      ctx.textAlign = align || 'center';
+      const w = ctx.measureText(text).width;
+      const left = align === 'left' ? x - 5 : align === 'right' ? x - w - 5 : x - w / 2 - 5;
+      ctx.fillStyle = 'rgba(251,252,253,.94)';
+      ctx.fillRect(left, y - 8, w + 10, 16);
+      ctx.fillStyle = 'rgba(10,16,32,.70)';
+      ctx.fillText(text, x, y);
+    };
+    const ring3 = (cx, cy, cz, rad, color) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      for(let i = 0; i <= 48; i++){
+        const a = i / 48 * Math.PI * 2;
+        const q = this.project({ x:cx + Math.cos(a) * rad, y:cy, z:cz + Math.sin(a) * rad });
+        i ? ctx.lineTo(q.sx, q.sy) : ctx.moveTo(q.sx, q.sy);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    ctx.save();
+    ctx.shadowColor = 'rgba(251,252,253,.95)';
+    ctx.shadowBlur = 6;
+    if(mode === 'communities'){
+      const center = this.comCenters ? [...this.comCenters.values()][0] : { x:0, y:0, z:0 };
+      const q = this.project({ x:center.x, y:center.y, z:center.z });
+      ring3(center.x, center.y, center.z, .18, accent);
+      chip('fellow node → communities', q.sx, q.sy - 62, 'center');
+    } else if(mode === 'coauthor'){
+      const st = this.sats.find(v => v.hub === 0) || this.sats[0];
+      const hub = this.nodes[st.hub];
+      const q = this.project({ x:hub.x + st.ox, y:hub.y + st.oy, z:hub.z + st.oz });
+      ctx.strokeStyle = '#e07a1f';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(q.sx, q.sy, 16, 0, 6.2832); ctx.stroke();
+      chip('co-author → network', q.sx, q.sy - 30, 'center');
+    } else if(mode === 'openalex'){
+      const hub = this.nodes[this.sats.length ? this.sats[0].hub : 0];
+      const c = this.project({ x:hub.x, y:hub.y, z:hub.z });
+      ring3(hub.x, hub.y, hub.z, .14, accent);
+      chip('co-author cluster', c.sx, c.sy - 32, 'center');
+      chip('OPENALEX-SCALE', this.w * .70, 86, 'center');
+    } else if(mode === 'gnn'){
+      chip('GNN · causal paths', this.w * .62, this.h * .18, 'center');
+    } else if(mode === 'ergm'){
+      chip('mechanisms', this.w * .62, this.h * .18, 'center');
+    }
+    ctx.restore();
+  }
+
+  drawCentralityScale(ctx){
+    const A = this.scaleA;
+    if(A < .01) return;
+    const between = this.centralityMode === 'betweenness';
+    const max = between ? this.prMax : 1;
+    const H = 1.0, AX = 0, AZ = 0;
+    const ticks = between ? [0, 20, 30, 40] : [0, .5, 1];
+    const mono = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'monospace';
+    const p0 = this.project({ x:AX, y:0, z:AZ });
+    const p1 = this.project({ x:AX, y:H, z:AZ });
+    const yOf = v => H * (v / max);
+    const pt = (x, y, z) => this.project({ x, y, z });
+
+    ctx.save();
+    ctx.globalAlpha = A;
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(251,252,253,.96)';
+    ctx.shadowBlur = 7;
+
+    /* 3D base ring, so the asset reads as part of the community */
+    ctx.strokeStyle = 'rgba(10,16,32,.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let i = 0; i <= 40; i++){
+      const a = i / 40 * Math.PI * 2;
+      const q = pt(AX + Math.cos(a) * .10, 0, AZ + Math.sin(a) * .10);
+      i ? ctx.lineTo(q.sx, q.sy) : ctx.moveTo(q.sx, q.sy);
+    }
+    ctx.stroke();
+
+    const label = (text, x, y, align, color) => {
+      ctx.font = '12px ' + mono;
+      ctx.textAlign = align;
+      const m = ctx.measureText(text).width;
+      const left = align === 'center' ? x - m / 2 - 4 : align === 'right' ? x - m - 4 : x - 4;
+      ctx.fillStyle = 'rgba(251,252,253,.94)';
+      ctx.fillRect(left, y - 8, m + 8, 16);
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+    };
+
+    /* vertical axis */
+    ctx.strokeStyle = 'rgba(251,252,253,.88)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(p0.sx, p0.sy);
+    ctx.lineTo(p1.sx, p1.sy);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(10,16,32,.30)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(p0.sx, p0.sy);
+    ctx.lineTo(p1.sx, p1.sy);
+    ctx.stroke();
+
+    label(between ? 'BETWEENNESS' : 'CLOSENESS', p1.sx, p1.sy - 18, 'center', 'rgba(10,16,32,.62)');
+
+    ticks.forEach(v => {
+      const y = yOf(v);
+      const q = pt(AX, y, AZ);
+      const h1 = pt(AX - .035, y, AZ), h2 = pt(AX + .035, y, AZ);
+      const z1 = pt(AX, y, AZ - .035), z2 = pt(AX, y, AZ + .035);
+      ctx.strokeStyle = 'rgba(10,16,32,.30)';
+      ctx.beginPath();
+      ctx.moveTo(h1.sx, h1.sy); ctx.lineTo(h2.sx, h2.sy);
+      ctx.moveTo(z1.sx, z1.sy); ctx.lineTo(z2.sx, z2.sy);
+      ctx.stroke();
+      label(between ? String(v) : (v === 0 ? '0' : v === 1 ? '1' : '.5'), q.sx + 12, q.sy, 'left', 'rgba(10,16,32,.68)');
+    });
+
+    if(between && this.p90){
+      const y = yOf(this.p90);
+      const a = pt(AX, y, AZ), b = pt(AX + .95, y, AZ);
+      ctx.strokeStyle = '#e07a1f';
+      ctx.lineWidth = 1.1;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(a.sx, a.sy);
+      ctx.lineTo(b.sx, b.sy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      label('p90 · ' + Math.round(this.p90), a.sx - 9, a.sy, 'right', '#e07a1f');
+    }
+
+    ctx.restore();
   }
 
   /* ------------------------------------------------------------- loop */
@@ -370,7 +612,7 @@ class GraphScene {
     this.last = now;
     this.t += dt;
 
-    if(this.auto && now - this.lastInput > 2400) this.yaw += dt * (this.mode === 'cover' ? .028 : .055);
+    if(this.auto && now - this.lastInput > 2400) this.yaw += dt * (this.mode === 'cover' ? .011 : .022);
     this.yaw += this.vyaw * dt * 60;
     this.pitch += this.vpitch * dt * 60;
     this.pitch = Math.max(-1.15, Math.min(1.15, this.pitch));
@@ -401,9 +643,11 @@ class GraphScene {
     if(!w || !h) return;
     ctx.clearRect(0, 0, w, h);
     const a = 1 - Math.exp(-6 * .016);
+    if(this.globalField) this.drawGlobalField(ctx);
 
     this.labelA += (this.labelTarget - this.labelA) * .07;
     this.satA += (this.satTarget - this.satA) * .05;
+    this.scaleA += (this.scaleTarget - this.scaleA) * .09;
 
     const P = this.nodes;
     for(let i = 0; i < P.length; i++){
@@ -415,7 +659,8 @@ class GraphScene {
       p.cg += (p.tg - p.cg) * .10;
       p.cb += (p.tb - p.cb) * .10;
       p.a += (p.ta - p.a) * .10;
-      p._ = this.project(p);
+      p.lift += (p.liftTarget - p.lift) * .09;
+      p._ = this.project({ x:p.x, y:p.y + p.lift, z:p.z });
       p._sx = p._.sx; p._sy = p._.sy; p._z = p._.z; p._f = p._.f;
       const baseR = this.mode === 'cover' ? 3.15
                   : this.layout === 'coauthor' ? 1.2
@@ -464,6 +709,14 @@ class GraphScene {
         ctx.arc(p._sx, p._sy, r + 2.6, 0, 6.2832);
         ctx.stroke();
       }
+      if(p.centrality && p.lift > .012){
+        ctx.globalAlpha = Math.min(1, .85 * alpha);
+        ctx.strokeStyle = p.centrality === 'betweenness' ? '#1b4dff' : '#e07a1f';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(p._sx, p._sy, r + 3.2, 0, 6.2832);
+        ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
 
@@ -472,6 +725,9 @@ class GraphScene {
       if(this.layout === 'field') this.drawFieldLabels(ctx);
       if(this.layout === 'community') this.drawComLabels(ctx);
     }
+
+    if(this.futureFocus) this.drawFutureFocus(ctx);
+    if(this.scaleA > .01) this.drawCentralityScale(ctx);
   }
 
 
@@ -556,12 +812,13 @@ class GraphScene {
     const E = this.edges, P = this.nodes;
     for(let i = 0; i < E.length; i++){
       const A = P[E[i][0]], B = P[E[i][1]];
-      if(A.n.louvain !== B.n.louvain) continue;
-      const k = this.comRank.get(A.n.louvain) || 99;
-      const on = k < 6 && Math.min(A.a, B.a) > .15;
-      ctx.globalAlpha = on ? .30 : .045;
-      ctx.strokeStyle = on ? (COM_COLORS[k] || GREY) : GREY;
-      ctx.lineWidth = on ? 1.1 : .7;
+      const same = A.n[this.communityKey] === B.n[this.communityKey];
+      const cid = A.n[this.communityKey];
+      const k = this.comRank.has(cid) ? this.comRank.get(cid) : 99;
+      const on = same && A.hl && B.hl;
+      ctx.globalAlpha = same ? (on ? .56 : .08) : .05;
+      ctx.strokeStyle = same ? (COM_COLORS[k] || GREY) : 'rgba(10,16,32,.18)';
+      ctx.lineWidth = on ? 1.15 : (same ? .95 : .6);
       ctx.beginPath();
       ctx.moveTo(A._sx, A._sy);
       ctx.lineTo(B._sx, B._sy);
@@ -697,9 +954,10 @@ window.SCENES['cover'] = {
   mount(s){
     const cv = s.querySelector('.cover-net');
     COVER = new GraphScene(cv, {
-      mode:'cover', interactive:false, cx:.50, cy:.50, scale:.82, alpha:.90, labels:false
+      mode:'cover', interactive:true, cx:.50, cy:.50, scale:.82, alpha:.90, labels:false
     });
+    window.VIEW3D = COVER;
   },
   beat(){},
-  destroy(){ if(COVER){ COVER.destroy(); COVER = null; } }
+  destroy(){ const ref = COVER; if(COVER){ COVER.destroy(); COVER = null; } if(window.VIEW3D === ref) window.VIEW3D = null; }
 };

@@ -119,7 +119,7 @@ const BT_PASOS = [
     sub:'text → dense vector',
     formula:'$$\\varphi : D \\to \\mathbb{R}^{384}, \\qquad \\varphi(d_i) = x_i$$'
           + '$$\\mathrm{sim}(d_i, d_j) = \\frac{x_i \\cdot x_j}{\\lVert x_i \\rVert\\, \\lVert x_j \\rVert}$$',
-    pie:'Two documents about the same problem with different wording produce nearby vectors.' },
+    pie:'Publications are chunked with a deliberately low-verbosity policy; each chunk fits a 128-token window. Two documents about the same problem with different wording produce nearby vectors.' },
 
   { id:'umap', k:'03', t:'UMAP', corto:'UMAP', escena:'umap',
     sub:'dimensionality reduction',
@@ -128,7 +128,7 @@ const BT_PASOS = [
     pie:'\\(d(\\cdot,\\cdot)\\) is cosine distance, \\(\\rho_i\\) the distance to the nearest neighbour and \\(\\sigma_i\\) a local normalisation.' },
 
   { id:'hdbscan', k:'04', t:'HDBSCAN', corto:'HDBSCAN', escena:'clusters',
-    sub:'density, hierarchy and noise',
+    sub:'Clustering',
     formula:'$$d_{\\mathrm{mreach}}(\\tilde{x}_i, \\tilde{x}_j) = \\max\\{\\mathrm{core}_k(\\tilde{x}_i),\\, \\mathrm{core}_k(\\tilde{x}_j),\\, d(\\tilde{x}_i, \\tilde{x}_j)\\}$$'
           + '$$\\tau(\\tilde{x}_i) = \\begin{cases} c_k & \\tilde{x}_i \\in C_k \\\\[2pt] -1 & \\text{noise} \\end{cases}$$',
     pie:'The distance between two points is corrected by neighbourhood density. What falls outside every dense region gets \\(-1\\): 56.3% of the corpus on the first pass.' },
@@ -357,7 +357,7 @@ const BT_ESCENAS = {
   /* 02 · SBERT: las palabras se convierten en un vector.
      Izquierda, las palabras reales de un tópico del corpus, una por plano de
      profundidad; derecha, las 384 celdas del vector, 24 × 16, coloreadas por
-     el valor de la componente. En el medio, la 512-token window. */
+     el valor de la componente. En el medio, la 128-token window. */
   embed(pts){
     const D = 384, COLS = 24, FILS = 16;          // 24 × 16 = 384 exacto
     const XV = .58, XW = -.92;                    // x del vector y de las palabras
@@ -374,7 +374,7 @@ const BT_ESCENAS = {
       col: '#0a1020',
       anclaje: 'right'
     }));
-    BT_TEXTOS.push({ txt:'512-token window', x:XW, y:-.60, z:0, tam:15,
+    BT_TEXTOS.push({ txt:'128-token window', x:XW, y:-.60, z:0, tam:15,
                      col:'faint', anclaje:'right', mono:true });
     BT_TEXTOS.push({ txt:'words in topic ' + ej[0], x:XW, y:.68, z:0, tam:15,
                      col:'faint', anclaje:'right' });
@@ -707,7 +707,7 @@ const BT_ESCENAS = {
 const BT = {
   pts:null, cv:null, ctx:null, raf:null, escena:null,
   girando:0, girandoY:0, vivo:false, radio:1, corrimiento:0,
-  ultimoInput:0, DERIVA:0.00055,       // rad por cuadro, hacia la izquierda
+  ultimoInput:0, DERIVA:0.00022,       // rad por cuadro, hacia la izquierda
                                        // ~2 min por vuelta completa
 
   dimensionar(){
@@ -835,7 +835,7 @@ const BT = {
         const q = { sx: t._sx, sy: t._sy, f: t._f };
         const k = Math.max(.55, q.f);
         ctx.font = (t.mono ? '' : '600 ') + Math.round(t.tam * k * 1.35) + 'px '
-                 + (t.mono ? '"JetBrains Mono", monospace' : '"Space Grotesk", sans-serif');
+                 + (t.mono ? '"JetBrains Mono", monospace' : 'Tahoma, Verdana, sans-serif');
         ctx.textAlign = t.anclaje || 'center';
         ctx.globalAlpha = .35 + .65 * k;
         ctx.fillStyle = t.col === 'neg' ? tenue : tinta;
@@ -898,6 +898,8 @@ const BT_PANEL = {
     + btFila('model', h.modelo)
     + btFila('family', h.familia)
     + btFila('dimension', 'ℝ³⁸⁴')
+    + btFila('token window', '128')
+    + btFila('chunking', 'publications, very low verbosity')
     + btFila('similarity', 'cosine'); },
 
   umap: () => { const h = BT_HP.umap; return ''

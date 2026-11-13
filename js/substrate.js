@@ -127,6 +127,25 @@ window.Schema3D.config.logos = {
   Fondecyt:        SRC + 'anid.png'
 };
 
+const SCHEMA_PROPERTIES = [
+  { node:'Fellow',           props:['doctoral_field','program','is_female','fellowship_duration_months'] },
+  { node:'HighSchool',       props:['school_name','school_commune','school_region','school_gse'] },
+  { node:'Undergrad',        props:['undergraduate_institution','undergraduate_region','elite'] },
+  { node:'Grad',             props:['graduate_university','graduate_program','graduate_country'] },
+  { node:'Quality',          props:['accreditation_level','accreditation_years'] },
+  { node:'QS',               props:['qs_university','qs_rank_2025','qs_country'] },
+  { node:'Shanghai',         props:['shanghai_university','shanghai_rank','shanghai_top_100','shanghai_country'] },
+  { node:'Author',           props:['indexed_name','affiliation_name','h_index','cited_by_count','document_count'] },
+  { node:'Publication',      props:['title','year','citation_count','keywords','abstract'] },
+  { node:'Journal',          props:['title','publisher','country','sjr','open_access'] },
+  { node:'Coauthor',         props:['coauthor_id','is_fellow_author'] },
+  { node:'Topic',            note:'More later in the presentation' },
+  { node:'PubDiscipline',    props:['discipline_name','discipline_id'] },
+  { node:'AuthorDiscipline', props:['label','author_disc_id'] },
+  { node:'Field',            props:['field_name','field_id'] },
+  { node:'Fondecyt',         props:['project_name','instrument','oecd_area','program'] },
+];
+
 const SOURCES = [
   { id:'anid',      label:'ANID',      logo:SRC+'anid.png',            nodes:['Fellow','Undergrad','Grad','Fondecyt'] },
   { id:'mineduc',   label:'MINEDUC',   logo:SRC+'mineduc.png',         nodes:['HighSchool'] },
@@ -284,6 +303,7 @@ function renderSchemaIntro(s){
   if(!s) s = document.querySelector('.s-graph');
   if(!s) return;
   s.classList.add('intro');
+  closeSchemaProperties();
   sourcesTransferred = false;
   if(window.Schema3D && Schema3D.active) { Schema3D.active.setPath([], []); Schema3D.active.setSourceLogos(false); }
   const panel = document.getElementById('schema-table');
@@ -294,6 +314,7 @@ function renderSchemaIntro(s){
 function renderSchemaQuery(i){
   const s = document.querySelector('.s-graph');
   const wasIntro = !!s && s.classList.contains('intro');
+  if(wasIntro) closeSchemaProperties();
   const rects = wasIntro ? sourceRects() : null;
   if(s) s.classList.remove('intro');
   const q = SCHEMA_QUERIES[i];
@@ -315,6 +336,178 @@ function renderSchemaQuery(i){
   if(window.Schema3D && Schema3D.active) Schema3D.active.setPath(q.nodes, q.links);
 }
 
+let PROPS_RAF = 0;
+let PROPS_CARDS = [];
+
+const NODE_PROP_COLORS = ['#1b4dff','#0f9b8c','#e07a1f','#6b5dd3','#2a788e','#7a8b99',
+  '#d1495b','#e6a23c','#5b8c5a','#9d7bb5','#3b9ab2','#c75b12','#4c78a8','#f58518',
+  '#54a24b','#b279a2'];
+
+function nodePropCard(row, index){
+  const card = document.createElement('div');
+  card.className = 'node-prop';
+  card.dataset.node = row.node;
+  card.style.setProperty('--np-color', NODE_PROP_COLORS[index % NODE_PROP_COLORS.length]);
+  const head = document.createElement('div');
+  head.className = 'np-head';
+  head.innerHTML = '<i></i>';
+  head.append(document.createTextNode(row.node));
+  const table = document.createElement('table');
+  const tbody = document.createElement('tbody');
+  if(row.note){
+    const tr = document.createElement('tr'), td = document.createElement('td');
+    td.className = 'np-note'; td.textContent = row.note; tr.appendChild(td); tbody.appendChild(tr);
+  } else {
+    (row.props || []).forEach(prop => {
+      const tr = document.createElement('tr'), td = document.createElement('td');
+      td.textContent = prop; tr.appendChild(td); tbody.appendChild(tr);
+    });
+  }
+  table.appendChild(tbody);
+  card.append(head, table);
+  return card;
+}
+
+function nodePropFrame(){
+  if(!PROPS_RAF) return;
+  const layer = document.getElementById('schema-props-layer');
+  if(!layer || !layer.classList.contains('open')){ PROPS_RAF = 0; return; }
+  const stage = document.getElementById('stage');
+  const sr = stage.getBoundingClientRect();
+  const zoom = (sr.width / 1600) || 1;
+  const W = 1600, H = sr.height / zoom;
+  const svg = document.getElementById('schema-props-lines');
+  if(svg && (svg.getAttribute('viewBox') !== '0 0 ' + W + ' ' + H)) svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  const active = window.Schema3D && Schema3D.active;
+  if(!active){ PROPS_RAF = 0; return; }
+  PROPS_CARDS.forEach(card => {
+    const p = active.nodeScreen(card.dataset.node);
+    if(!p) return;
+    const nx = (p.x - sr.left) / zoom, ny = (p.y - sr.top) / zoom, nr = (p.r || 0) / zoom;
+    const w = card._w, h = card._h;
+    let x = 8, y = 8;
+    if(card._side === 'left'){ x = nx - nr - 18 - w; y = ny - h / 2; }
+    else if(card._side === 'top'){ x = nx - w / 2; y = ny - nr - 18 - h; }
+    else if(card._side === 'bottom'){ x = nx - w / 2; y = ny + nr + 18; }
+    else { x = nx + nr + 18; y = ny - h / 2; }
+    x = Math.max(8, Math.min(W - w - 8, x));
+    y = Math.max(8, Math.min(H - h - 8, y));
+    card.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+    const line = card._line;
+    if(line){
+      let x2 = x + w / 2, y2 = y + h / 2;
+      if(card._side === 'left'){ x2 = x + w; y2 = y + h / 2; }
+      else if(card._side === 'right'){ x2 = x; y2 = y + h / 2; }
+      else if(card._side === 'top'){ x2 = x + w / 2; y2 = y + h; }
+      else { x2 = x + w / 2; y2 = y; }
+      line.setAttribute('x1', nx.toFixed(1)); line.setAttribute('y1', ny.toFixed(1));
+      line.setAttribute('x2', x2.toFixed(1)); line.setAttribute('y2', y2.toFixed(1));
+    }
+  });
+  PROPS_RAF = requestAnimationFrame(nodePropFrame);
+}
+
+function placeNodePropCards(){
+  const stage = document.getElementById('stage');
+  const sr = stage.getBoundingClientRect();
+  const zoom = (sr.width / 1600) || 1;
+  const W = 1600, H = sr.height / zoom;
+  const active = window.Schema3D && Schema3D.active;
+  if(!active) return;
+  const nodes = SCHEMA_PROPERTIES.map(row => {
+    const p = active.nodeScreen(row.node);
+    return p ? { x:(p.x - sr.left)/zoom, y:(p.y - sr.top)/zoom, r:(p.r||0)/zoom } : null;
+  }).filter(Boolean);
+  const placed = [];
+  PROPS_CARDS.forEach(card => {
+    const p = active.nodeScreen(card.dataset.node);
+    if(!p) return;
+    const nx = (p.x - sr.left) / zoom, ny = (p.y - sr.top) / zoom, nr = (p.r || 0) / zoom;
+    const w = card._w, h = card._h;
+    const candidates = [
+      ['right',  nx + nr + 18,      ny - h / 2],
+      ['left',   nx - nr - 18 - w,  ny - h / 2],
+      ['bottom', nx - w / 2,        ny + nr + 18],
+      ['top',    nx - w / 2,        ny - nr - 18 - h]
+    ];
+    let best = null, bestScore = Infinity;
+    for(const [side, rawX, rawY] of candidates){
+      const x = Math.max(8, Math.min(W - w - 8, rawX));
+      const y = Math.max(8, Math.min(H - h - 8, rawY));
+      let score = (x !== rawX || y !== rawY ? 250 : 0);
+      const r = { x, y, w, h };
+      for(const q of placed) score += overlapArea(r, q) * 5;
+      for(const q of nodes){
+        const nodeRect = { x:q.x - q.r, y:q.y - q.r, w:q.r * 2, h:q.r * 2 };
+        score += overlapArea(r, nodeRect) * 1.4;
+      }
+      if(score < bestScore){ bestScore = score; best = { side, x, y }; }
+    }
+    if(!best) best = { side:'right', x:8, y:8 };
+    card._side = best.side;
+    card.style.transform = 'translate3d(' + best.x.toFixed(1) + 'px,' + best.y.toFixed(1) + 'px,0)';
+    placed.push({ x:best.x, y:best.y, w, h });
+  });
+}
+
+function overlapArea(a, b){
+  const dx = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+  const dy = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  return dx * dy;
+}
+
+function openSchemaProperties(){
+  const layer = document.getElementById('schema-props-layer');
+  const slide = document.querySelector('.slide.active[data-slide="graph"]');
+  if(!layer) return;
+  if(layer.classList.contains('open')) return;
+  const svg = document.getElementById('schema-props-lines');
+  layer.querySelectorAll('.node-prop').forEach(el => el.remove());
+  if(svg) svg.replaceChildren();
+  layer.classList.add('open');
+  layer.setAttribute('aria-hidden', 'false');
+  PROPS_CARDS = SCHEMA_PROPERTIES.map((row, index) => {
+    const card = nodePropCard(row, index);
+    layer.appendChild(card);
+    card._w = card.offsetWidth; card._h = card.offsetHeight;
+    if(svg){
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(line); card._line = line;
+    }
+    return card;
+  });
+  if(slide) slide.classList.add('props-open');
+  placeNodePropCards();
+  PROPS_RAF = requestAnimationFrame(nodePropFrame);
+}
+
+function closeSchemaProperties(){
+  cancelAnimationFrame(PROPS_RAF); PROPS_RAF = 0;
+  const layer = document.getElementById('schema-props-layer');
+  if(layer){
+    layer.classList.remove('open');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.querySelectorAll('.node-prop').forEach(el => el.remove());
+  }
+  const svg = document.getElementById('schema-props-lines');
+  if(svg) svg.replaceChildren();
+  PROPS_CARDS = [];
+  const slide = document.querySelector('.slide.active[data-slide="graph"]');
+  if(slide) slide.classList.remove('props-open');
+}
+
+function toggleSchemaProperties(){
+  const layer = document.getElementById('schema-props-layer');
+  if(!layer) return false;
+  if(layer.classList.contains('open')){ closeSchemaProperties(); return false; }
+  const table = document.getElementById('schema-table');
+  if(table){ table.classList.remove('open'); table.setAttribute('aria-hidden','true'); }
+  if(window.TABLE_FILTER_UI) TABLE_FILTER_UI.show(false);
+  openSchemaProperties();
+  return true;
+}
+
 window.SCHEMA_UI = {
   activo(){
     const s = document.querySelector('.slide.active[data-slide="graph"]');
@@ -322,6 +515,9 @@ window.SCHEMA_UI = {
   },
   prop(d){ if(this.activo()) Deck.query(d); },
   tabla(){
+    const slide = document.querySelector('.slide.active[data-slide="graph"]');
+    if(slide && slide.classList.contains('intro')) return toggleSchemaProperties();
+    closeSchemaProperties();
     const panel = document.getElementById('schema-table');
     if(!panel) return false;
     const open = !panel.classList.contains('open');
@@ -330,6 +526,7 @@ window.SCHEMA_UI = {
     if(window.TABLE_FILTER_UI) TABLE_FILTER_UI.show(open);
     return open;
   },
+  closeProperties: closeSchemaProperties,
   refresh(){ renderSchemaTable(schemaIdx); }
 };
 

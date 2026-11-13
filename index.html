@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Untangling the Academic Network · AMW 2026</title>
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/png" href="logos/favicon.png">
+  <link rel="apple-touch-icon" href="logos/favicon.png">
 
 <link rel="stylesheet" href="vendor/fonts.css">
 <link rel="stylesheet" href="vendor/katex/katex.min.css">
@@ -13,7 +14,7 @@
 <script src="vendor/katex/katex.min.js"></script>
 <script src="vendor/katex/auto-render.min.js"></script>
 
-<link rel="stylesheet" href="css/deck.css?v=61">
+<link rel="stylesheet" href="css/deck.css?v=138">
 </head>
 <body>
 
@@ -41,9 +42,12 @@
       <h1 class="cover-title">Untangling the<br>Academic Network</h1>
       <p class="cover-full">Analyzing Scientific Trajectories With Graphs and Natural Language Processing</p>
       <div class="cover-authors">
-        <div class="ca-name">Rodrigo Molina</div>
-        <div class="ca-name">Roxana Chiappa</div>
-        <div class="ca-name">Sebastián Ferrada</div>
+        <div class="ca">
+          <div class="ca-name">Rodrigo Molina Ávila*</div>
+          <p class="cover-creds">* Sociologist - MSc Data Science - IMFD - IDIA</p>
+        </div>
+        <div class="ca"><div class="ca-name">Roxana Chiappa</div></div>
+        <div class="ca"><div class="ca-name">Sebastián Ferrada</div></div>
       </div>
       <div class="cover-amw-slot" id="amw-slot" aria-hidden="true"></div>
       <p class="cover-date">Friday 13 November 2026 · Arequipa, Peru · Universidad de San Pablo</p>
@@ -64,10 +68,9 @@
     <p class="q-text">Chile funds advanced human capital.<br>
       Its records cannot answer the follow-up questions about the results of
       that funding: <em>who entered science, with whom, where, and what came of it.</em></p>
-
-    <svg class="q-arrow" viewBox="0 0 520 120" aria-hidden="true">
-      <path d="M8 60 H486 M438 24 L492 60 L438 96"/>
-    </svg>
+    <p class="q-solution">Solution?</p>
+    <p class="q-answer">A property graph!</p>
+    <span data-beat="1"></span><span data-beat="2"></span><span data-beat="3"></span>
   </section>
 
   <!-- ================================================================
@@ -100,6 +103,9 @@
         <table class="st-table" id="st-table"></table>
       </div>
     </aside>
+    <div class="schema-props-layer" id="schema-props-layer" aria-hidden="true">
+      <svg class="schema-props-lines" id="schema-props-lines" aria-hidden="true"></svg>
+    </div>
 
     <span data-beat="1"></span><span data-beat="2"></span><span data-beat="3"></span>
     <span data-beat="4"></span><span data-beat="5"></span><span data-beat="6"></span><span data-beat="7"></span>
@@ -111,8 +117,13 @@
        ================================================================ -->
   <section class="slide s-bertopic" data-slide="topics" data-act="topics" data-jump="1"
            data-title="Topics" data-sub="From 26,071 publications to 237 topics">
-    <h2 class="big-question bt-title">From publications<br>to topics.</h2>
-    <p class="bt-deck">BERTopic: 26,071 abstracts → 237 topics</p>
+    <h2 class="big-question bt-title">BERTopic:<br>Grootendorst (2022)</h2>
+    <p class="bt-deck">26,071 abstracts → 237 topics</p>
+
+    <div class="bt-intro" aria-live="polite">
+      <h2 class="bt-intro-q">Topic node?</h2>
+      <p class="bt-intro-name">BERTopic</p>
+    </div>
 
     <div class="bt-riel"></div>
 
@@ -164,90 +175,125 @@
       </aside>
     </div>
 
+    <span class="bt-ref-star" aria-hidden="true">*</span>
+    <p class="bt-ref">* Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv:2203.05794. https://arxiv.org/abs/2203.05794</p>
+
     <span data-beat="1"></span><span data-beat="2"></span><span data-beat="3"></span>
     <span data-beat="4"></span><span data-beat="5"></span><span data-beat="6"></span><span data-beat="7"></span>
     <span data-beat="8"></span><span data-beat="9"></span>
     <span data-beat="10"></span><span data-beat="11"></span><span data-beat="12"></span><span data-beat="13"></span>
     <span data-beat="14"></span><span data-beat="15"></span><span data-beat="16"></span>
+    <span data-beat="17"></span><span data-beat="18"></span>
   </section>
 
   <!-- ================================================================
-       04 · COMMUNITIES
+       04 · WHAT NOW? · schema self-loop · Leiden communities
        ================================================================ -->
-  <section class="slide s-community" data-slide="community" data-act="community"
-           data-title="Communities" data-sub="A fragmented topology" data-jump="1">
-    <canvas id="community-canvas"></canvas>
+  <section class="slide s-method" data-slide="method" data-act="method"
+           data-title="Communities" data-sub="From schema to Leiden" data-jump="1">
+    <div class="method-question" data-beat="1">What now?</div>
+    <div class="method-communities" data-beat="2">Communities!</div>
 
-    <div class="cm-morph" id="cm-morph" aria-hidden="true">
-      <img src="logos/fuentes/anid.png" alt="">
-      <span>Fellow</span>
-    </div>
-
-    <div class="cm-facts">
-      <b class="cm-huge">84.2%</b>
-      <span class="cm-sub">never publish with a peer</span>
-      <div class="cm-small">
-        <div><b>496</b><span>fellows</span></div>
-        <div><b>700</b><span>edges</span></div>
-        <div><b>21</b><span>communities</span></div>
+    <div class="method-schema" data-beat="3">
+      <canvas id="method-schema-canvas" aria-label="Property graph schema; Fellow co-authorship self-loop highlighted"></canvas>
+      <div class="method-self-loop" id="method-self-loop" aria-hidden="true">
+        <svg id="method-loop-svg" aria-hidden="true">
+          <defs>
+            <marker id="method-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 Z" fill="#1b4dff"></path>
+            </marker>
+          </defs>
+          <path id="method-loop-path" marker-end="url(#method-loop-arrow)"></path>
+        </svg>
+        <span class="method-loop-label">COAUTHORED</span>
       </div>
     </div>
 
-    <table class="cm-table" data-beat="2">
-      <thead>
-        <tr><th>Community</th><th>Fellows</th><th>Female</th><th>Q1</th><th>High GSE</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><i class="chip" style="background:#1b4dff"></i>Immune cell biology</td><td>59</td><td>37.3%</td><td>86.7%</td><td>27.1%</td></tr>
-        <tr><td><i class="chip" style="background:#0f9b8c"></i>Synthesis &amp; structure</td><td>58</td><td>34.5%</td><td>83.2%</td><td>27.6%</td></tr>
-        <tr><td><i class="chip" style="background:#e07a1f"></i>Salmon genomics</td><td>49</td><td>49.0%</td><td>85.0%</td><td>26.5%</td></tr>
-        <tr><td><i class="chip" style="background:#6b5dd3"></i>C. difficile infection</td><td>33</td><td>48.5%</td><td>87.0%</td><td>6.1%</td></tr>
-        <tr><td><i class="chip" style="background:#2a788e"></i>Clinical methods</td><td>31</td><td>54.8%</td><td>85.5%</td><td>29.0%</td></tr>
-        <tr><td><i class="chip" style="background:#7a8b99"></i>Neuroscience</td><td>31</td><td>48.4%</td><td>90.5%</td><td>22.6%</td></tr>
-      </tbody>
-    </table>
-    <p class="cm-source">Louvain communities · Neo4j GDS · the 496-node component</p>
+    <div class="method-community">
+      <canvas id="method-community-canvas" aria-label="Leiden communities of the 496-node component"></canvas>
+      <div class="method-community-head">
+        <h3><span class="method-title-detail">Communities</span><span class="method-title-centrality">Centrality</span></h3>
+      </div>
+      <div class="method-heat">
+        <table class="method-table" id="method-table"></table>
+        <div class="method-topics-strip" id="method-topics-strip"></div>
+        <p class="method-valid">* Validation: Leiden assignment validated against a stochastic block model (SBM); Erdős–Rényi null z &gt; 35.</p>
+      </div>
 
+      <div class="method-centrality" data-metric="betweenness">
+        <article class="centrality-card betweenness">
+          <h4><i class="centrality-dot between"></i>Betweenness</h4>
+          <p>Brokerage: fellows on the shortest paths between otherwise separate communities.</p>
+        </article>
+        <article class="centrality-card closeness">
+          <h4><i class="centrality-dot closeness"></i>Closeness</h4>
+          <p>Reach: fellows who can reach the rest of the component in fewer steps.</p>
+        </article>
+        <p class="centrality-traits" id="centrality-traits"></p>
+      </div>
+    </div>
+
+    <span data-beat="4"></span><span data-beat="5"></span>
   </section>
 
   <!-- ================================================================
-       05 · FUTURE
+       06 · FUTURE
        ================================================================ -->
   <section class="slide s-future" data-slide="future" data-act="future"
-           data-title="Future work" data-sub="Opening the full co-authorship graph" data-jump="1">
-    <canvas id="future-canvas"></canvas>
+           data-title="Future work" data-sub="From cohort to global collaboration" data-jump="1">
+    <canvas id="future-canvas" aria-label="Future work: from the co-author component to a global collaboration network"></canvas>
 
     <div class="fu-copy">
-      <h3 class="fu-title">The graph already<br>holds the rest.</h3>
-      <div class="fu-stats">
-        <div><b>113,221</b><span>co-authors</span></div>
-        <div><b>2,884,376</b><span>edges</span></div>
-        <div><b>15.8%</b><span>of the cohort</span></div>
-      </div>
-      <p class="fu-next" data-beat="2">Next: full co-authorship, regional and institutional cuts,
-        causal designs.</p>
-      <p class="fu-note" id="fu-note">Schematic render of the co-author field.</p>
+      <h3 class="fu-title">Future work</h3>
+      <p class="fu-lead" id="fu-lead">The graph already holds the rest: from one fellow to the global collaboration system.</p>
+      <ul class="fu-list" id="fu-list">
+        <li data-i="1">Fellow node → communities</li>
+        <li data-i="2">Coauthor node → analyze its network</li>
+        <li data-i="3">OpenAlex → analyze the global network</li>
+        <li data-i="4">ERGM · Espinosa-Rada (2022) → could unveil the stratification of sciences</li>
+      </ul>
+      <p class="fu-ref" data-beat="4">Espinosa-Rada, A., &amp; Ortiz, F. (2022). Gender and researchers with institutional affiliations in the global south/north in social network science. Applied Network Science, 7(1), 40. https://doi.org/10.1007/s41109-022-00478-8</p>
+      <p class="fu-note" id="fu-note">Schematic render; proportions are illustrative.</p>
     </div>
 
-    <span data-beat="2"></span>
+    <span data-beat="2"></span><span data-beat="3"></span><span data-beat="4"></span>
   </section>
 
   <!-- ================================================================
        06 · CLOSE
        ================================================================ -->
   <section class="slide s-close" data-slide="close" data-act="close"
-           data-title="Close" data-sub="Evaluate the network">
-    <div class="close-body">
-      <h2 class="close-title">Evaluate programmes<br>by the networks they build.</h2>
-      <div class="close-links">
-        <div><span><i class="fa-solid fa-globe" aria-hidden="true"></i>Graph</span><b>interrogandolaacademia.cl</b></div>
-        <div><span><i class="fa-solid fa-box-archive" aria-hidden="true"></i>Artifact</span><b>rodrigomolinaavila.github.io/gds-becarios</b></div>
-        <div><span><i class="fa-solid fa-envelope" aria-hidden="true"></i>Contact</span><b>rodmolina@ug.uchile.cl</b></div>
+           data-title="Conclusions" data-sub="Findings, contributions and next steps" data-jump="1">
+    <h2 class="concl-slide-title">Conclusions</h2>
+    <div class="concl-list-wrap">
+      <ul class="concl-bullets">
+        <li>We can answer complex questions about fellows' funding, institutions and co-authorship.</li>
+        <li>BERTopic shows what science is produced: 26,071 abstracts → 237 topics.</li>
+        <li>21 communities; 84.2% share no intra-cohort publication; centrality separates brokers from reach.</li>
+        <li>Fellow profiles: 40.7% female, 54.7% regional, 74.2% Q1, 4.4 publications on average.</li>
+        <li>Policy: evaluate programmes by the networks they build.</li>
+        <li>Limits: data coverage, missing GSE/region, 2014–2016 cohort.</li>
+      </ul>
+    </div>
+
+    <div class="concl-final" data-beat="7">
+      <div class="final-amw-slot" id="amw-final-slot" aria-hidden="true"></div>
+      <div class="final-row">
+        <div class="final-copy">
+          <h2 class="final-title">Thank you!</h2>
+          <p class="final-sub">Let's reach out for collaboration.</p>
+        </div>
+        <figure class="final-qr">
+          <img src="logos/linkedin-qr.svg" alt="LinkedIn QR code for Rodrigo Molina Avila">
+        </figure>
+      </div>
+      <div class="final-affiliations" aria-label="Affiliations">
+        <img src="logos/logo_fcfm.svg" alt="FCFM · Universidad de Chile">
+        <img src="logos/logo_imfd.png" alt="IMFD">
+        <img class="mono" src="logos/logo_idia.png" alt="IDIA">
       </div>
     </div>
-    <div class="close-cite">
-      Molina, Chiappa &amp; Ferrada. <i>Untangling the Academic Network.</i> AMW 2026.
-    </div>
+
   </section>
 
 
@@ -280,19 +326,21 @@
 </div>
 
 <script src="data/red.js"></script>
+<script src="data/regions.js?v=138"></script>
 <script src="data/topicos.js"></script>
 <script src="data/perfiles.js"></script>
-<script src="js/filters.js?v=61"></script>
-<script src="js/deck.js?v=61"></script>
-<script src="js/graph.js?v=61"></script>
-<script src="js/schema3d.js?v=61"></script>
-<script src="data/queries.js?v=61"></script>
-<script src="data/topic_queries.js?v=61"></script>
-<script src="data/topic_segments.js?v=61"></script>
-<script src="js/substrate.js?v=61"></script>
-<script src="js/graph-scenes.js?v=61"></script>
-<script src="js/bertopic.js?v=61"></script>
-<script src="js/topics.js?v=61"></script>
-<script src="js/mando.js?v=61"></script>
+<script src="data/communities.js"></script>
+<script src="js/filters.js?v=138"></script>
+<script src="js/deck.js?v=138"></script>
+<script src="js/graph.js?v=138"></script>
+<script src="js/schema3d.js?v=138"></script>
+<script src="data/queries.js?v=138"></script>
+<script src="data/topic_queries.js?v=138"></script>
+<script src="data/topic_segments.js?v=138"></script>
+<script src="js/substrate.js?v=138"></script>
+<script src="js/graph-scenes.js?v=138"></script>
+<script src="js/bertopic.js?v=138"></script>
+<script src="js/topics.js?v=138"></script>
+<script src="js/mando.js?v=138"></script>
 </body>
 </html>

@@ -19,14 +19,16 @@ const MAPEO = {
 
     0:  'beatSiguiente',   // A
     1:  'beatAnterior',    // B
-    2:  'slideAnterior',   // X · previous slide
+    2:  'orden',           // X · sort table / previous slide
+    4:  'filtroAnterior',  // LB · previous filter value
+    5:  'filtroSiguiente', // RB · next filter value
     11: 'cicloOrden',      // R3 · pause / resume orbit
     17: 'cicloViz',        // Share · edges on / off
-    8:  'tabla',           // View · example result table
+    8:  'tabla',           // View · table / centrality toggle
     9:  'indice'           // Menu · index
   },
   repetibles: new Set([12, 13, 14, 15]),
-  IGNORAR: new Set([4, 5, 6, 7]),
+  IGNORAR: new Set([6, 7]),
   MENU_BOTONES: {
     4: 'focoAnterior',
     5: 'focoSiguiente',
@@ -50,11 +52,9 @@ const MANDO = {
     const zm = v => Math.abs(v) < this.ZONA_MUERTA_3D ? 0 : v;
     const rx = zm(gp.axes[2] || 0);
     const ry = zm(gp.axes[3] || 0);
-    const vertical = -rx;
-    const horizontal = -ry;
     return {
-      girar: this.SIGNO_3D.girar * horizontal,
-      inclinar: this.SIGNO_3D.inclinar * vertical
+      girar: this.SIGNO_3D.girar * -ry,
+      inclinar: this.SIGNO_3D.inclinar * -rx
     };
   },
 
@@ -62,6 +62,8 @@ const MANDO = {
     if(window.SCHEMA_UI && SCHEMA_UI.activo()) return SCHEMA_UI;
     if(window.TOPIC_UI && TOPIC_UI.activo()) return TOPIC_UI;
     if(window.TOPICS_UI && TOPICS_UI.activo()) return TOPICS_UI;
+    if(window.METHOD_UI && METHOD_UI.active()) return METHOD_UI;
+    if(window.COMMUNITY_UI && COMMUNITY_UI.active()) return COMMUNITY_UI;
     return null;
   },
 
@@ -69,6 +71,9 @@ const MANDO = {
     beatSiguiente: () => Deck.next(),
     beatAnterior: () => Deck.prev(),
     slideAnterior: () => Deck.go(Deck.i - 1, Deck.jumpBeat(Deck.i - 1)),
+    orden: () => { if(window.TABLE_SORT_UI && TABLE_SORT_UI.cycle()) return; Deck.go(Deck.i - 1, Deck.jumpBeat(Deck.i - 1)); },
+    filtroAnterior: () => { if(window.TABLE_FILTER_UI) TABLE_FILTER_UI.navigate(-1); },
+    filtroSiguiente: () => { if(window.TABLE_FILTER_UI) TABLE_FILTER_UI.navigate(+1); },
     propSiguiente: () => { const u = MANDO.ui(); u && u.prop && u.prop(+1); },
     propAnterior:  () => { const u = MANDO.ui(); u && u.prop && u.prop(-1); },
     cicloOrden:    () => { const u = MANDO.ui();
@@ -80,6 +85,7 @@ const MANDO = {
                            else if(window.VIEW3D && VIEW3D.toggleEdges) VIEW3D.toggleEdges();
                            else if(window.VIEW3D) VIEW3D.showEdges = !VIEW3D.showEdges; },
     tabla:         () => {
+      if(window.METHOD_UI && METHOD_UI.toggleCentrality && METHOD_UI.toggleCentrality()) return;
       if(window.SCHEMA_UI && SCHEMA_UI.activo()) SCHEMA_UI.tabla();
       else if(window.TOPIC_UI && TOPIC_UI.activo()) TOPIC_UI.tabla();
     },
@@ -118,7 +124,7 @@ const MANDO = {
 
       const menu = Deck.indiceAbierto();
       const s = document.querySelector('.slide.active');
-      const in3D = !menu && s && ['graph', 'topics', 'community', 'future'].includes(s.dataset.slide) && window.VIEW3D;
+      const in3D = !menu && s && ['cover', 'graph', 'topics', 'community', 'method', 'future'].includes(s.dataset.slide) && window.VIEW3D;
       if(in3D){
         const s3 = this.stick3D(gp);
         if(s3.girar || s3.inclinar) VIEW3D.rotate(s3.girar * .035, s3.inclinar * .028);

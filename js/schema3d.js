@@ -35,9 +35,9 @@
   /* ───────────── configuración ───────────── */
   const config = {
     slug: 'substrate',
-    fonts: { sans: '"Space Grotesk", sans-serif', mono: '"JetBrains Mono", monospace' },
+    fonts: { sans: 'Tahoma, Verdana, sans-serif', mono: '"JetBrains Mono", monospace' },
     camera: { yaw: -0.18, pitch: 0.2, dist: 5.5, cx: 0.585, cy: 0.5, scale: 0.25 },
-    sway: { amp: 0.16, rate: 0.055 },            // rate = velocidad angular pico (rad/s)
+    sway: { amp: 0.16, rate: 0.022 },            // rate = velocidad angular pico (rad/s)
     bubble: { r: 0.135, rFellow: 0.19, sprite: 512, plate: 0.7, plateFill: false, icon: 1.56 },
     build: { stepMs: 240, growMs: 560 },
     labels: true,
@@ -899,7 +899,8 @@
       nodeScreen(id) {
         const i = TI.get(id); if (i == null || !W || !Hh) return null;
         const b = canvas.getBoundingClientRect(), k = b.width / W, s = screen[i];
-        return { x: b.left + s.x * k, y: b.top + s.y * k };
+        const rs = (i === 0 ? cfg.bubble.rFellow : cfg.bubble.r) * s.f * (s.sc || 1);
+        return { x: b.left + s.x * k, y: b.top + s.y * k, r: rs * k };
       },
       toggleOrbit() { orbit = !orbit; },
       setLogo(id, src) { return loadLogo(id, src); },
