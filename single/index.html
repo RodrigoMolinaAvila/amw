@@ -643,7 +643,7 @@ body:has(.s-cover.active) #mando-luz.on{
 .concl-main{position:relative;z-index:2;width:100%;transition:opacity .35s var(--ease)}
 .concl-main.beat-dim{opacity:0;pointer-events:none}
 .concl-slide-title{font-size:76px;line-height:.95;letter-spacing:-.05em;margin:0 0 20px;font-weight:500;transition:opacity .3s var(--ease)}
-.s-close[data-current-beat="7"] .concl-slide-title{opacity:0}
+.s-close[data-current-beat="8"] .concl-slide-title{opacity:0}
 .concl-beat{display:none}
 .concl-beat.beat-on{display:block}
 .concl-kicker{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
@@ -659,8 +659,9 @@ body:has(.s-cover.active) #mando-luz.on{
 .s-close[data-current-beat="4"] .concl-bullets li:nth-child(-n+4),
 .s-close[data-current-beat="5"] .concl-bullets li:nth-child(-n+5),
 .s-close[data-current-beat="6"] .concl-bullets li:nth-child(-n+6),
-.s-close[data-current-beat="7"] .concl-bullets li:nth-child(-n+6){opacity:1;transform:none}
-.s-close[data-current-beat="7"] .concl-list-wrap{opacity:0}
+.s-close[data-current-beat="7"] .concl-bullets li:nth-child(-n+7),
+.s-close[data-current-beat="8"] .concl-bullets li:nth-child(-n+7){opacity:1;transform:none}
+.s-close[data-current-beat="8"] .concl-list-wrap{opacity:0}
 .concl-title{font-size:88px;line-height:.95;letter-spacing:-.05em;margin:0;font-weight:500}
 .concl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:46px}
 .concl-card{border-top:2px solid var(--accent);padding-top:14px}
@@ -676,7 +677,7 @@ body:has(.s-cover.active) #mando-luz.on{
 .final-affiliations img{display:block;height:72px;width:auto;max-width:285px;object-fit:contain;opacity:.9}
 .final-affiliations img.mono{filter:brightness(0) saturate(100%);opacity:.86}
 .s-close[data-current-beat="6"] .close-cite{opacity:0}
-.s-close[data-current-beat="7"] .close-cite{opacity:0;pointer-events:none}
+.s-close[data-current-beat="8"] .close-cite{opacity:0;pointer-events:none}
 .final-copy{max-width:900px;text-align:center}
 .final-kicker{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
 .final-title{margin:0;font-size:104px;line-height:.95;letter-spacing:-.055em;font-weight:500}
@@ -1421,12 +1422,13 @@ body.deck-ready #amw-corner{
         <li>BERTopic shows what science is produced: 26,071 abstracts → 237 topics.</li>
         <li>21 communities; 84.2% share no intra-cohort publication; centrality separates brokers from reach.</li>
         <li>Fellow profiles: 40.7% female, 54.7% regional, 74.2% Q1, 4.4 publications on average.</li>
+        <li>Gender marks centrality more than class: women are underrepresented among P90 brokers, while high SES never exceeds its baseline share.</li>
         <li>Policy: evaluate programmes by the networks they build.</li>
         <li>Limits: data coverage, missing GSE/region, 2014–2016 cohort.</li>
       </ul>
     </div>
 
-    <div class="concl-final" data-beat="7">
+    <div class="concl-final" data-beat="8">
       <div class="final-amw-slot" id="amw-final-slot" aria-hidden="true"></div>
       <div class="final-row">
         <div class="final-copy">
