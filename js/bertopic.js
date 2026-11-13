@@ -119,7 +119,7 @@ const BT_PASOS = [
     sub:'text → dense vector',
     formula:'$$\\varphi : D \\to \\mathbb{R}^{384}, \\qquad \\varphi(d_i) = x_i$$'
           + '$$\\mathrm{sim}(d_i, d_j) = \\frac{x_i \\cdot x_j}{\\lVert x_i \\rVert\\, \\lVert x_j \\rVert}$$',
-    pie:'Publications are chunked with a deliberately low-verbosity policy; each chunk fits a 128-token window. Two documents about the same problem with different wording produce nearby vectors.' },
+    pie:'Chunking · 128-token window.' },
 
   { id:'umap', k:'03', t:'UMAP', corto:'UMAP', escena:'umap',
     sub:'dimensionality reduction',
@@ -899,7 +899,7 @@ const BT_PANEL = {
     + btFila('family', h.familia)
     + btFila('dimension', 'ℝ³⁸⁴')
     + btFila('token window', '128')
-    + btFila('chunking', 'publications, very low verbosity')
+    + btFila('chunking', 'publications')
     + btFila('similarity', 'cosine'); },
 
   umap: () => { const h = BT_HP.umap; return ''
