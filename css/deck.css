@@ -659,14 +659,12 @@ body:has(.s-cover.active) #mando-luz.on{
 .final-affiliations img.mono{filter:brightness(0) saturate(100%);opacity:.86}
 .s-close[data-current-beat="6"] .close-cite{opacity:0}
 .s-close[data-current-beat="7"] .close-cite{opacity:0;pointer-events:none}
-.final-copy{max-width:760px}
+.final-copy{max-width:900px;text-align:center}
 .final-kicker{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
 .final-title{margin:0;font-size:104px;line-height:.95;letter-spacing:-.055em;font-weight:500}
 .final-sub{margin:18px 0 0;font-size:28px;line-height:1.25;color:var(--muted)}
-.final-link{display:inline-block;margin-top:28px;font-family:var(--mono);font-size:14px;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(27,77,255,.35);padding-bottom:3px}
-.final-qr{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
-.final-qr img{display:block;width:292px;height:292px;background:#fff;padding:9px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(10,16,32,.10)}
-.final-qr figcaption{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.final-contact{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:28px}
+.final-link{display:inline-block;font-family:var(--mono);font-size:14px;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(27,77,255,.35);padding-bottom:3px}
 
 /* ---------------------------------------------------------------- substrate 3D */
 .s-graph{padding:0;overflow:hidden}

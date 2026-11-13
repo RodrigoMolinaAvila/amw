@@ -156,7 +156,7 @@ const Deck = {
     this.maxBeat = this.maxBeatOf(s);
     this.beat = (beat === 'end') ? this.maxBeat
              : Math.max(1, Math.min(beat || 1, this.maxBeat));
-    history.replaceState(null, '', '#s' + (idx + 1));
+    history.replaceState(null, '', location.href.split('#')[0] + '#s' + (idx + 1));
     const sc = window.SCENES && window.SCENES[s.dataset.slide];
     if(!same && sc && sc.mount) sc.mount(s);
     this.applyBeats();

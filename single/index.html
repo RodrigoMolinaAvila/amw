@@ -677,14 +677,12 @@ body:has(.s-cover.active) #mando-luz.on{
 .final-affiliations img.mono{filter:brightness(0) saturate(100%);opacity:.86}
 .s-close[data-current-beat="6"] .close-cite{opacity:0}
 .s-close[data-current-beat="7"] .close-cite{opacity:0;pointer-events:none}
-.final-copy{max-width:760px}
+.final-copy{max-width:900px;text-align:center}
 .final-kicker{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
 .final-title{margin:0;font-size:104px;line-height:.95;letter-spacing:-.055em;font-weight:500}
 .final-sub{margin:18px 0 0;font-size:28px;line-height:1.25;color:var(--muted)}
-.final-link{display:inline-block;margin-top:28px;font-family:var(--mono);font-size:14px;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(27,77,255,.35);padding-bottom:3px}
-.final-qr{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
-.final-qr img{display:block;width:292px;height:292px;background:#fff;padding:9px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(10,16,32,.10)}
-.final-qr figcaption{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.final-contact{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:28px}
+.final-link{display:inline-block;font-family:var(--mono);font-size:14px;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(27,77,255,.35);padding-bottom:3px}
 
 /* ---------------------------------------------------------------- substrate 3D */
 .s-graph{padding:0;overflow:hidden}
@@ -1402,12 +1400,13 @@ body.deck-ready #amw-corner{
         <li data-i="2">Coauthor node → analyze its network</li>
         <li data-i="3">OpenAlex → analyze the global network</li>
         <li data-i="4">ERGM · Espinosa-Rada (2022) → could unveil the stratification of sciences</li>
+        <li data-i="5">Causal inference → funding effects on trajectories</li>
       </ul>
       <p class="fu-ref" data-beat="4">Espinosa-Rada, A., &amp; Ortiz, F. (2022). Gender and researchers with institutional affiliations in the global south/north in social network science. Applied Network Science, 7(1), 40. https://doi.org/10.1007/s41109-022-00478-8</p>
       <p class="fu-note" id="fu-note">Schematic render; proportions are illustrative.</p>
     </div>
 
-    <span data-beat="2"></span><span data-beat="3"></span><span data-beat="4"></span>
+    <span data-beat="2"></span><span data-beat="3"></span><span data-beat="4"></span><span data-beat="5"></span>
   </section>
 
   <!-- ================================================================
@@ -1432,11 +1431,12 @@ body.deck-ready #amw-corner{
       <div class="final-row">
         <div class="final-copy">
           <h2 class="final-title">Thank you!</h2>
-          <p class="final-sub">Let's reach out for collaboration.</p>
+          <p class="final-sub">Reach out to collaborate</p>
+          <div class="final-contact">
+            <a class="final-link" href="mailto:rodmolina@ug.uchile.cl">rodmolina@ug.uchile.cl</a>
+            <a class="final-link" href="https://www.linkedin.com/in/rodmolinaavila/" target="_blank" rel="noopener">linkedin.com/in/rodmolinaavila</a>
+          </div>
         </div>
-        <figure class="final-qr">
-          <img src="logos/linkedin-qr.svg" alt="LinkedIn QR code for Rodrigo Molina Avila">
-        </figure>
       </div>
       <div class="final-affiliations" aria-label="Affiliations">
         <img src="logos/logo_fcfm.svg" alt="FCFM · Universidad de Chile">
@@ -3071,7 +3071,7 @@ const Deck = {
     this.maxBeat = this.maxBeatOf(s);
     this.beat = (beat === 'end') ? this.maxBeat
              : Math.max(1, Math.min(beat || 1, this.maxBeat));
-    history.replaceState(null, '', location.pathname + location.search + '#s' + (idx + 1));
+    history.replaceState(null, '', location.href.split('#')[0] + '#s' + (idx + 1));
     const sc = window.SCENES && window.SCENES[s.dataset.slide];
     if(!same && sc && sc.mount) sc.mount(s);
     this.applyBeats();
@@ -535341,7 +535341,10 @@ const FUTURE_COPY = {
        layout:'coauthor', global:true, scale:.30, focus:'openalex' },
   4: { lead:'Why do these collaboration structures emerge?',
        note:'ERGM: mechanisms that could unveil the stratification of sciences.',
-       layout:'coauthor', global:false, scale:.42, focus:'ergm' }
+       layout:'coauthor', global:false, scale:.42, focus:'ergm' },
+  5: { lead:'Future work: move from association to causal effects.',
+       note:'Causal inference: separate selection from programme effects.',
+       layout:'coauthor', global:false, scale:.42, focus:'coauthor' }
 };
 
 function setFutureBeat(n){

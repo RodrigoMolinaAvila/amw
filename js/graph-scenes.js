@@ -120,7 +120,10 @@ const FUTURE_COPY = {
        layout:'coauthor', global:true, scale:.30, focus:'openalex' },
   4: { lead:'Why do these collaboration structures emerge?',
        note:'ERGM: mechanisms that could unveil the stratification of sciences.',
-       layout:'coauthor', global:false, scale:.42, focus:'ergm' }
+       layout:'coauthor', global:false, scale:.42, focus:'ergm' },
+  5: { lead:'Future work: move from association to causal effects.',
+       note:'Causal inference: separate selection from programme effects.',
+       layout:'coauthor', global:false, scale:.42, focus:'coauthor' }
 };
 
 function setFutureBeat(n){
